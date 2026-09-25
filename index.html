@@ -1,0 +1,2077 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#0a0505">
+    <title>RunTillYouDie · Guía Oficial</title>
+    <style>
+        /* ============================================================
+           RESET
+        ============================================================ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html {
+            -webkit-text-size-adjust: 100%;
+        }
+
+        /* ============================================================
+           FUENTES PIXEL
+        ============================================================ */
+        @font-face {
+            font-family: 'Minecraftia';
+            src: url('Minecraftia.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: 'Determination';
+            src: url('determination.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        /* ============================================================
+           VARIABLES
+        ============================================================ */
+        :root {
+            --accent-color: #ff3b3b;
+            --accent-color-2: #ff9b9b;
+            --accent-glow: rgba(255, 59, 59, 0.55);
+            --accent-glow-soft: rgba(255, 59, 59, 0.18);
+            --font-family: 'Minecraftia', 'Courier New', monospace;
+            --font-family-head: 'Determination', 'Minecraftia', monospace;
+            --font-weight-head: 400;
+            --letter-head: 0.5px;
+            --bg: #0b0b13;
+            --bg-2: #14141f;
+            --panel: #191922;
+            --panel-2: #21212d;
+            --line: #000000;
+            --edge: #3a3a4a;
+            --ink: #f3efe4;
+            --ink-dim: #b7b2c4;
+            --ink-faint: #7d7891;
+            --radius: 0px;
+            --radius-sm: 0px;
+            --px: 4px;
+            --nav-h: 76px;
+            --safe-b: env(safe-area-inset-bottom, 0px);
+            --safe-t: env(safe-area-inset-top, 0px);
+        }
+
+        /* ============================================================
+           BASE
+        ============================================================ */
+        body {
+            background: var(--bg);
+            color: var(--ink);
+            font-family: var(--font-family);
+            line-height: 1.6;
+            min-height: 100vh;
+            overflow-x: hidden;
+            image-rendering: pixelated;
+            transition: background 0.3s ease, color 0.3s ease;
+            position: relative;
+        }
+
+        img {
+            image-rendering: pixelated;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: crisp-edges;
+        }
+
+        ::selection {
+            background: var(--accent-color);
+            color: #0b0b13;
+        }
+
+        /* textura de fondo tipo pixel-grid, sin blur */
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            background-image:
+                repeating-linear-gradient(0deg, rgba(255,255,255,0.025) 0px, rgba(255,255,255,0.025) 1px, transparent 1px, transparent 4px),
+                repeating-linear-gradient(90deg, rgba(255,255,255,0.025) 0px, rgba(255,255,255,0.025) 1px, transparent 1px, transparent 4px),
+                radial-gradient(circle at 20% 10%, var(--accent-glow-soft), transparent 45%),
+                radial-gradient(circle at 85% 30%, var(--accent-glow-soft), transparent 40%);
+            opacity: 0.9;
+            transition: background 0.4s ease;
+        }
+
+        /* ruido pixelado (sin blend suave, bloques duros) */
+        body::after {
+            content: "";
+            position: fixed;
+            inset: 0;
+            z-index: 2;
+            pointer-events: none;
+            opacity: 0.04;
+            mix-blend-mode: overlay;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+        }
+
+        @keyframes fadeIn {
+            0%   { opacity: 0; }
+            100% { opacity: 1; }
+        }
+
+        @keyframes flickerIn {
+            0%   { opacity: 0; }
+            30%  { opacity: 1; }
+            45%  { opacity: 0.3; }
+            60%  { opacity: 1; }
+            100% { opacity: 1; }
+        }
+
+        @keyframes glowPulse {
+            0%, 100% { text-shadow: 3px 3px 0 #000, 0 0 10px var(--accent-glow); }
+            50%      { text-shadow: 3px 3px 0 #000, 0 0 18px var(--accent-glow); }
+        }
+
+        @keyframes popIn {
+            0%   { opacity: 0; transform: scale(0.9); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.35; }
+        }
+
+        /* ============================================================
+           MARCOS PIXEL (paneles con esquinas escalonadas)
+        ============================================================ */
+        .killer-hero,
+        .skin-modal-card,
+        .ability-popup,
+        .lore-short,
+        .lore-full {
+            clip-path: polygon(
+                0 8px, 8px 8px, 8px 0,
+                calc(100% - 8px) 0, calc(100% - 8px) 8px, 100% 8px,
+                100% calc(100% - 8px), calc(100% - 8px) calc(100% - 8px), calc(100% - 8px) 100%,
+                8px 100%, 8px calc(100% - 8px), 0 calc(100% - 8px)
+            );
+        }
+
+        /* ============================================================
+           APP SHELL
+        ============================================================ */
+        .app-shell {
+            position: relative;
+            z-index: 1;
+            max-width: 560px;
+            margin: 0 auto;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg);
+        }
+
+        /* ---------- TOPBAR ---------- */
+        .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            padding: calc(14px + var(--safe-t)) 20px 16px;
+            background: var(--bg-2);
+            border-bottom: 4px solid var(--line);
+            box-shadow: 0 4px 0 var(--accent-glow-soft);
+            transition: box-shadow 0.4s ease;
+        }
+
+        h1 {
+            font-family: var(--font-family-head);
+            font-size: clamp(1.5rem, 4vw, 2.1rem);
+            font-weight: var(--font-weight-head);
+            letter-spacing: var(--letter-head);
+            text-transform: uppercase;
+            text-align: center;
+            color: var(--ink);
+            text-shadow: 3px 3px 0 #000;
+            animation: flickerIn 1s steps(4, end), glowPulse 3.2s ease-in-out 1s infinite;
+            white-space: nowrap;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: var(--ink-faint);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            font-size: 0.62rem;
+            margin-top: 8px;
+            opacity: 0.9;
+        }
+
+        /* ---------- CONTENIDO ---------- */
+        .content {
+            flex: 1;
+            padding: 20px 16px calc(var(--nav-h) + var(--safe-b) + 26px);
+        }
+
+        h2 {
+            font-family: var(--font-family-head);
+            font-size: 1.25rem;
+            font-weight: var(--font-weight-head);
+            letter-spacing: 1px;
+            margin: 4px 0 4px 0;
+            padding: 6px 0 6px 14px;
+            border-left: var(--px) solid var(--accent-color);
+            background: var(--panel);
+            color: var(--ink);
+            text-shadow: 2px 2px 0 #000;
+            transition: border-color 0.4s ease;
+        }
+
+        h3 {
+            font-family: var(--font-family-head);
+            font-size: 1.05rem;
+            font-weight: var(--font-weight-head);
+            color: var(--accent-color-2);
+            margin: 0 0 12px 0;
+            letter-spacing: 0.5px;
+            text-shadow: 2px 2px 0 #000;
+            transition: color 0.4s ease;
+        }
+
+        h4 {
+            font-family: var(--font-family-head);
+            font-size: 0.95rem;
+            font-weight: var(--font-weight-head);
+            color: var(--ink-dim);
+            margin: 22px 0 10px 0;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .hint {
+            color: var(--ink-faint);
+            font-size: 0.78rem;
+            margin: 8px 0 18px 0;
+            line-height: 1.6;
+        }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.25s steps(3, end); }
+
+        /* ============================================================
+           SUB-TABS (segmented control pixel)
+        ============================================================ */
+        .sub-tabs {
+            display: flex;
+            gap: var(--px);
+            background: var(--bg-2);
+            border: 3px solid var(--line);
+            padding: 4px;
+            margin-bottom: 18px;
+        }
+
+        .sub-tab-btn {
+            flex: 1;
+            background: var(--panel);
+            border: none;
+            color: var(--ink-faint);
+            padding: 10px 8px;
+            font-size: 0.72rem;
+            font-weight: var(--font-weight-head);
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            font-family: var(--font-family);
+            white-space: nowrap;
+        }
+
+        .sub-tab-btn.active {
+            color: #0b0b13;
+            background: var(--accent-color);
+            box-shadow: inset 0 0 0 2px #000;
+        }
+
+        .sub-tab-content { display: none; }
+        .sub-tab-content.active { display: block; animation: fadeIn 0.25s steps(3, end); }
+
+        /* ============================================================
+           GRID DE ASESINOS
+        ============================================================ */
+        .killer-strip-wrap {
+            margin: 0 0 22px;
+        }
+
+        .killer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 10px;
+        }
+
+        .killer-btn {
+            background: var(--panel);
+            border: 3px solid var(--line);
+            box-shadow: 4px 4px 0 #000;
+            color: var(--ink-dim);
+            cursor: pointer;
+            font-family: var(--font-family);
+            padding: 14px 8px;
+            transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.15s ease;
+        }
+
+        .killer-btn span {
+            font-size: 0.76rem;
+            font-weight: var(--font-weight-head);
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            text-align: center;
+            line-height: 1.3;
+            display: block;
+        }
+
+        .killer-btn:active {
+            transform: translate(3px, 3px);
+            box-shadow: 1px 1px 0 #000;
+        }
+
+        .killer-btn.active {
+            color: #fff;
+            background: var(--panel-2);
+            border-color: var(--accent-color);
+            box-shadow: 4px 4px 0 var(--accent-color);
+        }
+
+        /* ============================================================
+           DETALLE DE ASESINO
+        ============================================================ */
+        .killer-detail {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+        .killer-detail.visible { display: block; }
+
+        .killer-hero {
+            position: relative;
+            width: 100%;
+            overflow: hidden;
+            margin-bottom: 16px;
+            padding: 30px 20px;
+            text-align: center;
+            background: var(--panel-2);
+            border: 3px solid var(--line);
+            box-shadow: inset 0 0 0 2px var(--accent-color);
+            filter: drop-shadow(6px 6px 0 var(--accent-glow-soft));
+            transition: filter 0.4s ease;
+        }
+
+        .killer-hero .hero-name {
+            font-family: var(--font-family-head);
+            font-size: clamp(1.6rem, 5vw, 2.3rem);
+            font-weight: var(--font-weight-head);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #fff;
+            text-shadow: 3px 3px 0 #000, 0 0 20px var(--accent-glow);
+        }
+
+        .name-title {
+            font-family: var(--font-family-head);
+            font-size: 1.15rem;
+            font-weight: var(--font-weight-head);
+            letter-spacing: 0.5px;
+            color: var(--accent-color);
+            margin-bottom: 4px;
+            text-shadow: 2px 2px 0 #000;
+            transition: color 0.4s ease;
+        }
+
+        .real-name {
+            font-size: 0.78rem;
+            color: var(--ink-faint);
+            margin-bottom: 14px;
+        }
+
+        .lore-short {
+            background: var(--panel);
+            padding: 14px 16px;
+            border-left: var(--px) solid var(--accent-color);
+            margin: 8px 0 14px;
+            font-size: 0.86rem;
+            color: #d8cfc0;
+            position: relative;
+            transition: border-color 0.4s ease;
+        }
+        .lore-short::before {
+            content: "»";
+            color: var(--accent-color);
+            margin-right: 6px;
+            font-family: var(--font-family-head);
+        }
+
+        .btn-lore {
+            background: var(--bg-2);
+            border: 3px solid var(--accent-color);
+            color: var(--accent-color);
+            padding: 10px 18px;
+            font-size: 0.72rem;
+            font-weight: var(--font-weight-head);
+            cursor: pointer;
+            transition: all 0.15s ease;
+            font-family: var(--font-family);
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            margin: 4px 0 16px;
+            display: inline-block;
+            box-shadow: 3px 3px 0 #000;
+        }
+
+        .btn-lore:active {
+            transform: translate(3px, 3px);
+            box-shadow: 0 0 0 #000;
+        }
+
+        .btn-lore:hover {
+            background: var(--accent-color);
+            color: #0b0b13;
+        }
+
+        .lore-full {
+            background: var(--panel);
+            padding: 0 16px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.35s ease, padding 0.25s ease;
+            border-left: var(--px) solid var(--accent-color);
+            margin: 0 0 14px 0;
+            color: #c3b9a8;
+            font-size: 0.86rem;
+        }
+
+        .lore-full.open {
+            max-height: 1400px;
+            padding: 14px 16px;
+        }
+
+        /* ============================================================
+           HABILIDADES (fichas cuadradas pixel)
+        ============================================================ */
+        .abilities-grid,
+        .survivor-abilities-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+            gap: 10px;
+            margin: 10px 0 4px 0;
+        }
+
+        .ability-icon-btn,
+        .survivor-abil-btn {
+            background: var(--panel);
+            border: 3px solid var(--line);
+            padding: 10px 6px 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            font-family: var(--font-family);
+            color: var(--ink-dim);
+            box-shadow: 3px 3px 0 #000;
+        }
+
+        .ability-icon-btn:active,
+        .survivor-abil-btn:active {
+            transform: translate(3px, 3px);
+            box-shadow: 0 0 0 #000;
+        }
+
+        .ability-icon-btn:hover,
+        .survivor-abil-btn:hover {
+            border-color: var(--accent-color);
+            background: var(--panel-2);
+        }
+
+        .icon-placeholder {
+            display: block;
+            width: 42px;
+            height: 42px;
+            margin: 0 auto 6px auto;
+            background: #201817;
+            border: 2px solid var(--line);
+            font-size: 1.1rem;
+            line-height: 38px;
+            text-align: center;
+            color: var(--ink-faint);
+            overflow: hidden;
+            position: relative;
+            transition: box-shadow 0.15s ease;
+        }
+
+        .icon-placeholder img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .ability-icon-btn:hover .icon-placeholder,
+        .survivor-abil-btn:hover .icon-placeholder {
+            box-shadow: 0 0 0 2px var(--accent-color);
+        }
+
+        .abil-name {
+            display: block;
+            font-size: 0.62rem;
+            font-weight: var(--font-weight-head);
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            color: var(--ink-dim);
+            line-height: 1.3;
+        }
+
+        /* ---------- POPUP DE HABILIDAD ---------- */
+        .ability-popup {
+            background: var(--panel-2);
+            border: 3px solid var(--line);
+            border-left: var(--px) solid var(--accent-color);
+            padding: 16px 18px;
+            margin: 12px 0 16px 0;
+            display: none;
+        }
+
+        .ability-popup.open {
+            display: block;
+            animation: popIn 0.2s ease;
+        }
+
+        .popup-title {
+            font-family: var(--font-family-head);
+            font-size: 1.05rem;
+            font-weight: var(--font-weight-head);
+            color: var(--accent-color);
+            text-shadow: 2px 2px 0 #000;
+            transition: color 0.4s ease;
+        }
+
+        .popup-desc {
+            color: #d2c8b9;
+            margin: 8px 0;
+            font-size: 0.84rem;
+        }
+
+        .popup-detail {
+            color: var(--ink-faint);
+            font-size: 0.78rem;
+            border-top: 2px dashed var(--edge);
+            padding-top: 10px;
+            margin-top: 8px;
+        }
+
+        /* ============================================================
+           SKINS
+        ============================================================ */
+        .skins-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 10px;
+            margin: 4px 0 6px;
+        }
+
+        .skin-btn {
+            background: var(--panel);
+            border: 3px solid var(--line);
+            padding: 14px 10px;
+            text-align: center;
+            cursor: pointer;
+            font-family: var(--font-family);
+            color: var(--ink);
+            transition: all 0.15s ease;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            box-shadow: 3px 3px 0 #000;
+        }
+
+        .skin-btn:active {
+            transform: translate(3px, 3px);
+            box-shadow: 0 0 0 #000;
+        }
+
+        .skin-btn:hover {
+            border-color: var(--accent-color);
+            background: var(--panel-2);
+        }
+
+        .skin-btn-name {
+            font-weight: var(--font-weight-head);
+            font-size: 0.82rem;
+        }
+
+        .skin-btn-tier {
+            font-size: 0.64rem;
+            color: var(--accent-color);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: color 0.4s ease;
+        }
+
+        .skin-btn-tier[data-tier="Legendario"] {
+            color: #ffd23f;
+            text-shadow: 1px 1px 0 #000;
+        }
+
+        /* ---------- MODAL DE SKIN ---------- */
+        .skin-modal-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 50;
+            background: rgba(4, 3, 6, 0.92);
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+        }
+
+        .skin-modal-overlay.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .skin-modal-card {
+            width: 100%;
+            max-width: 560px;
+            background: var(--panel);
+            border: 3px solid var(--line);
+            border-top: var(--px) solid var(--accent-color);
+            padding: 26px 24px calc(28px + var(--safe-b));
+            transform: translateY(16px);
+            transition: transform 0.25s ease;
+            max-height: 82vh;
+            overflow-y: auto;
+        }
+
+        .skin-modal-overlay.open .skin-modal-card {
+            transform: translateY(0);
+        }
+
+        .skin-modal-handle {
+            width: 44px;
+            height: 6px;
+            background: var(--edge);
+            margin: 0 auto 18px;
+        }
+
+        .skin-modal-tier {
+            display: inline-block;
+            font-size: 0.68rem;
+            font-weight: var(--font-weight-head);
+            color: var(--accent-color);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+            transition: color 0.4s ease;
+        }
+
+        .skin-modal-tier[data-tier="Legendario"] {
+            color: #ffd23f;
+            text-shadow: 1px 1px 0 #000;
+        }
+
+        .skin-modal-name {
+            font-family: var(--font-family-head);
+            font-size: 1.4rem;
+            font-weight: var(--font-weight-head);
+            letter-spacing: 0.5px;
+            color: var(--ink);
+            margin-bottom: 14px;
+            text-shadow: 2px 2px 0 #000;
+        }
+
+        .skin-modal-desc {
+            font-size: 0.85rem;
+            line-height: 1.6;
+            color: #d2c8b9;
+            margin-bottom: 22px;
+        }
+
+        .skin-modal-close {
+            width: 100%;
+            background: var(--bg-2);
+            border: 3px solid var(--accent-color);
+            color: var(--accent-color);
+            padding: 12px;
+            font-size: 0.76rem;
+            font-weight: var(--font-weight-head);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            cursor: pointer;
+            font-family: var(--font-family);
+            transition: all 0.15s ease;
+            box-shadow: 3px 3px 0 #000;
+        }
+
+        .skin-modal-close:active {
+            background: var(--accent-color);
+            color: #0b0b13;
+            transform: translate(3px, 3px);
+            box-shadow: 0 0 0 #000;
+        }
+
+        /* ============================================================
+           MAPAS
+        ============================================================ */
+        .map-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+            margin: 16px 0 4px;
+        }
+
+        .map-card {
+            background: var(--panel);
+            border: 3px solid var(--line);
+            overflow: hidden;
+            box-shadow: 5px 5px 0 #000;
+            transition: transform 0.15s ease;
+        }
+
+        .map-card:active { transform: translate(2px, 2px); }
+
+        .map-img-placeholder img {
+            width: 100%;
+            height: 170px;
+            object-fit: cover;
+            display: block;
+            background: #1a1313;
+            border-bottom: 3px solid var(--line);
+        }
+
+        .map-name {
+            font-family: var(--font-family-head);
+            padding: 14px 16px 4px;
+            font-weight: var(--font-weight-head);
+            color: var(--ink);
+            font-size: 1rem;
+            letter-spacing: 0.3px;
+            text-shadow: 1px 1px 0 #000;
+        }
+
+        .map-desc {
+            padding: 0 16px 16px;
+            color: var(--ink-faint);
+            font-size: 0.8rem;
+            line-height: 1.5;
+        }
+
+        /* ============================================================
+           JUGABILIDAD
+        ============================================================ */
+        .juga-section {
+            background: var(--panel);
+            border: 3px solid var(--line);
+            box-shadow: 5px 5px 0 #000;
+            padding: 18px 18px 16px;
+            margin: 0 0 16px 0;
+        }
+
+        .juga-section h3 { margin-top: 0; }
+
+        .juga-section .img-placeholder img {
+            width: 100%;
+            height: 130px;
+            object-fit: cover;
+            margin: 4px 0 14px 0;
+            display: block;
+            background: #1a1313;
+            border: 2px solid var(--line);
+        }
+
+        .juga-section ul {
+            list-style: none;
+        }
+
+        .juga-section ul li {
+            position: relative;
+            padding: 9px 0 9px 20px;
+            border-bottom: 2px dashed var(--edge);
+            color: #d0c6b6;
+            font-size: 0.82rem;
+            line-height: 1.55;
+        }
+
+        .juga-section ul li::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 16px;
+            width: 8px;
+            height: 8px;
+            background: var(--accent-color);
+            transition: background 0.4s ease;
+        }
+
+        .juga-section ul li:last-child { border-bottom: none; }
+
+        .juga-section ul li strong { color: var(--ink); }
+
+        .consejos-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+
+        /* ============================================================
+           BOTTOM NAV
+        ============================================================ */
+        .bottom-nav {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 30;
+            display: flex;
+            max-width: 560px;
+            margin: 0 auto;
+            background: var(--bg-2);
+            border-top: 4px solid var(--line);
+            box-shadow: 0 -4px 0 var(--accent-glow-soft);
+            padding: 8px 6px calc(8px + var(--safe-b));
+        }
+
+        .tab-btn {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--ink-faint);
+            padding: 12px 4px;
+            font-size: 0.68rem;
+            font-weight: var(--font-weight-head);
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            font-family: var(--font-family);
+            position: relative;
+        }
+
+        .tab-btn:active { transform: translateY(2px); }
+
+        .tab-btn.active {
+            color: var(--accent-color);
+        }
+
+        .tab-btn.active::after {
+            content: "";
+            position: absolute;
+            left: 50%;
+            bottom: 2px;
+            width: 8px;
+            height: 8px;
+            background: var(--accent-color);
+            transform: translateX(-50%);
+        }
+
+        /* ============================================================
+           TEMAS — ASESINOS vs SUPERVIVIENTES
+        ============================================================ */
+        body.theme-killers {
+            --accent-color: #ff3b3b;
+            --accent-color-2: #ff9b9b;
+            --accent-glow: rgba(255, 59, 59, 0.5);
+            --accent-glow-soft: rgba(255, 59, 59, 0.18);
+        }
+
+        body.theme-survivors {
+            --accent-color: #3ddc71;
+            --accent-color-2: #b9f5cf;
+            --accent-glow: rgba(61, 220, 113, 0.5);
+            --accent-glow-soft: rgba(61, 220, 113, 0.18);
+        }
+
+        /* ============================================================
+           RESPONSIVE — tablet / escritorio
+        ============================================================ */
+        @media (min-width: 700px) {
+            :root { --nav-h: 0px; }
+
+            .app-shell {
+                max-width: 900px;
+                margin: 28px auto;
+                min-height: calc(100vh - 56px);
+                border: 4px solid var(--line);
+                box-shadow: 10px 10px 0 #000;
+            }
+
+            .topbar { position: relative; }
+
+            .content { padding: 24px 32px 40px; }
+
+            .killer-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+
+            .abilities-grid,
+            .survivor-abilities-grid { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); }
+
+            .skins-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+
+            .map-grid { grid-template-columns: repeat(2, 1fr); }
+
+            .consejos-grid { grid-template-columns: repeat(2, 1fr); }
+
+            .bottom-nav {
+                position: sticky;
+                max-width: none;
+                border-top: 4px solid var(--line);
+                box-shadow: none;
+            }
+
+            .skin-modal-card { max-width: 480px; border: 3px solid var(--line); margin-bottom: 40px; }
+        }
+
+        @media (min-width: 1100px) {
+            .app-shell { max-width: 1080px; }
+            .map-grid { grid-template-columns: repeat(3, 1fr); }
+        }
+
+        @media (max-width: 340px) {
+            .abilities-grid,
+            .survivor-abilities-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            * { animation: none !important; transition: none !important; }
+        }
+
+    </style>
+</head>
+<body class="theme-killers">
+    <div class="app-shell" id="app">
+        <header class="topbar">
+            <h1>RunTillYouDie</h1>
+            <div class="subtitle">La Falla nunca duerme · Corre o muere</div>
+        </header>
+
+        <main class="content">
+            <!-- ============================================= -->
+            <!-- PESTAÑA: PERSONAJES -->
+            <!-- ============================================= -->
+            <div id="personajes" class="tab-content active">
+                <div class="sub-tabs">
+                    <button class="sub-tab-btn active" data-subtab="asesinos">Asesinos</button>
+                    <button class="sub-tab-btn" data-subtab="supervivientes">Supervivientes</button>
+                </div>
+
+                <!-- ---------- ASESINOS ---------- -->
+                <div id="sub-asesinos" class="sub-tab-content active">
+                    <h2>Asesinos</h2>
+                    <p class="hint">Selecciona un asesino para ver su perfil completo: lore, habilidades y skins.</p>
+
+                    <div class="killer-strip-wrap">
+                        <div class="killer-grid" id="killerGrid">
+                            <button class="killer-btn active" data-killer="victor"><span>Victor</span></button>
+                            <button class="killer-btn" data-killer="rey"><span>Rey</span></button>
+                            <button class="killer-btn" data-killer="guardian"><span>Guardian</span></button>
+                            <button class="killer-btn" data-killer="abismo"><span>Abismo</span></button>
+                            <button class="killer-btn" data-killer="consumida"><span>Consumida</span></button>
+                            <button class="killer-btn" data-killer="impostor"><span>Impostor</span></button>
+                            <button class="killer-btn" data-killer="experimento"><span>Experimento</span></button>
+                            <button class="killer-btn" data-killer="mafioso"><span>Mafioso</span></button>
+                        </div>
+                    </div>
+
+                    <div id="killerDetail" class="killer-detail visible">
+                        <!-- Se llena con JS -->
+                    </div>
+                </div>
+
+                <!-- ---------- HABILIDADES DE SUPERVIVIENTE ---------- -->
+                <div id="sub-supervivientes" class="sub-tab-content">
+                    <h2>Habilidades</h2>
+                    <p class="hint">Cada ronda obtienes dos habilidades aleatorias. Pulsa cada una para ver su funcionamiento.</p>
+
+                    <div class="survivor-abilities-grid" id="survivorAbilitiesGrid">
+                        <!-- Se llena con JS -->
+                    </div>
+
+                    <div id="survivorAbilityPopup" class="ability-popup">
+                        <div class="popup-title" id="popupTitle">Golpe</div>
+                        <div class="popup-desc" id="popupDesc">Descripción breve de la habilidad.</div>
+                        <div class="popup-detail" id="popupDetail">Información detallada, cooldown, estrategia, etc.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================= -->
+            <!-- PESTAÑA: MAPAS -->
+            <!-- ============================================= -->
+            <div id="mapas" class="tab-content">
+                <h2>Mapas</h2>
+                <p class="hint">Fragmentos del mundo real que la Falla devoró y copió mal.</p>
+                <div class="map-grid" id="mapGrid">
+                    <!-- Se llena con JS -->
+                </div>
+            </div>
+
+            <!-- ============================================= -->
+            <!-- PESTAÑA: JUGABILIDAD -->
+            <!-- ============================================= -->
+            <div id="jugabilidad" class="tab-content">
+                <h2>Jugabilidad</h2>
+
+                <div class="juga-section" style="margin-top:16px;">
+                    <h3>Conceptos básicos</h3>
+                    <ul>
+                        <li><strong>Rondas:</strong> Cada partida es una ronda donde un jugador es el asesino y el resto supervivientes.</li>
+                        <li><strong>Objetivo:</strong> Los supervivientes deben sobrevivir hasta que el tiempo se agote. No hay objetivos de escape.</li>
+                        <li><strong>Asesino:</strong> Debe eliminar a todos los supervivientes antes de que termine la ronda.</li>
+                    </ul>
+                </div>
+
+                <div class="juga-section">
+                    <h3>Stamina</h3>
+                    <div class="img-placeholder">
+                        <img src="recursos/jugabilidad/stamina.png" alt="Stamina">
+                    </div>
+                    <ul>
+                        <li>La stamina permite correr y realizar acciones evasivas.</li>
+                        <li>Se agota al correr y se recupera al caminar o estar quieto.</li>
+                        <li>Gestionarla es clave para sobrevivir o perseguir.</li>
+                    </ul>
+                </div>
+
+                <div class="juga-section">
+                    <h3>Habilidades de superviviente</h3>
+                    <ul>
+                        <li>Cada superviviente recibe dos habilidades aleatorias al inicio de la ronda.</li>
+                        <li>Son arquetipos mundanos: golpe, malvavisco, revolver, etc.</li>
+                        <li>No dependen del mapa ni del asesino.</li>
+                    </ul>
+                </div>
+
+                <div class="consejos-grid">
+                    <div class="juga-section">
+                        <h3>Consejos para supervivientes</h3>
+                        <ul>
+                            <li>Mantente en movimiento, pero no corras sin control. La stamina es tu recurso más valioso; úsala con cabeza.</li>
+                            <li>Correr deja huellas visibles. Si usas Cloak, caminar te hará casi invisible; correr delatará tu posición al instante.</li>
+                            <li>Habilidades como Golpe o Revolver pueden aturdir al asesino y salvar a un compañero en apuros. No las desperdicies.</li>
+                            <li>Coordínate con otros supervivientes. Un asesino distraído es un asesino que no está cazando a tus aliados.</li>
+                            <li>Si estás herido, prioriza curarte antes de enfrentarte al asesino. Un corazón de vida puede marcar la diferencia.</li>
+                        </ul>
+                    </div>
+                    <div class="juga-section">
+                        <h3>Consejos para asesinos</h3>
+                        <ul>
+                            <li>Tu stamina solo se drena cuando un survivor entra en un radio de 30 bloques. Úsalo a tu favor para patrullar sin desgastarte.</li>
+                            <li>Aprende las habilidades de tu killer y úsalas en el momento adecuado. Cada habilidad tiene un propósito y un cooldown que gestionar.</li>
+                            <li>Las armas melee funcionan con hitbox, no como un ataque normal de Minecraft. Aprende el alcance y el ángulo de tu arma para no fallar.</li>
+                            <li>Presiona a los supervivientes heridos para que cometan errores. Un superviviente con poca vida es un superviviente desesperado.</li>
+                            <li>Usa el entorno y los errores de los mapas a tu favor. Conoce los callejones sin salida y las zonas donde los survivors no pueden escapar.</li>
+                            <li>No persigas a un solo superviviente si otros están cerca. Cambiar de objetivo puede desorientar al grupo y generar más oportunidades.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <nav class="bottom-nav">
+            <button class="tab-btn active" data-tab="personajes">Personajes</button>
+            <button class="tab-btn" data-tab="mapas">Mapas</button>
+            <button class="tab-btn" data-tab="jugabilidad">Jugabilidad</button>
+        </nav>
+    </div>
+
+    <!-- ============================================= -->
+    <!-- MODAL: DESCRIPCIÓN DE SKIN -->
+    <!-- ============================================= -->
+    <div id="skinModalOverlay" class="skin-modal-overlay" onclick="if(event.target===this) closeSkinModal();">
+    <div class="skin-modal-card">
+        <div class="skin-modal-handle"></div>
+        <div class="skin-modal-tier" id="skinModalTier">Común</div>
+        <div class="skin-modal-name" id="skinModalName">Nombre de la skin</div>
+        <!-- NUEVO: imagen de la skin dentro del modal -->
+        <div style="text-align:center; margin:10px 0;">
+            <img id="skinModalImg" src="" alt="Skin" style="max-width:100%; max-height:200px; border-radius:0; border:3px solid var(--line); box-shadow:4px 4px 0 #000; background:var(--panel);">
+        </div>
+        <div class="skin-modal-desc" id="skinModalDesc">Descripción de la skin.</div>
+        <button class="skin-modal-close" onclick="closeSkinModal()">Cerrar</button>
+    </div>
+    </div>
+
+    <script>
+        (function() {
+            "use strict";
+
+            const killersData = {
+    victor: {
+        name: "Victor",
+        title: "El Errante",
+        realName: "Victor",
+        img: "recursos/personajes/victor.png",
+        loreShort: "Un chico que busca emocion, fanatico de los juegos violentos y las pelis slasher, tomó la replica de su pared y a veces suele salir a buscar víctimas para divertirse un rato. No es el asesino más peligroso, pero definitivamente no es alguien con quien quieras meterte.",
+        loreFull: "Victor no siempre fue un asesino. En el mundo real, fue un cinéfilo solitario que trabajaba en un videoclub llamado Slasher Video. Pasaba las noches viendo películas de serie B: Viernes 13, La última casa a la izquierda, Pesadilla en Elm Street. Su obsesión no era la violencia en sí, sino la estructura del slasher: el perseguidor imparable, la víctima que corre, el golpe que nunca es definitivo. Comenzó a grabar sus propios cortos con una cámara VHS, interpretando él mismo al asesino. Un día, harto de fingir, decidió que el mundo real era su set. Su primera víctima fue el dueño del videoclub. La segunda, una clienta habitual. Cuando la policía lo cercó, Victor no huyó, sonrió y dijo: 'Por fin voy a ver el final de la película.' No hubo juicio. Antes de que lo arrestaran, una parálisis súbita lo derribó, un derrame cerebral que lo dejó en coma en el asiento trasero del patrullero. La Falla se lo llevó. En su sueño ficticio, el videoclub sigue abierto, las cintas están en los estantes, y nadie sospecha de él. Cada noche, cuando cierra la persiana, el mundo se convierte en un slasher: puede perseguir, matar, gritar, recibir cuchilladas él mismo, y al amanecer todo se reinicia. Es su película infinita.",
+        abilities: [
+    { 
+        name: "Acosar", 
+        desc: "Te vuelves invisible, ganas velocidad extrema y ves auras de todos los survivors.",
+        detail: "Cooldown: 20s. Te vuelves invisible, obtienes Velocidad III y ves auras de todos los survivors. No puedes atacar ni usar otras habilidades.",
+        img: "recursos/personajes/victor_hab1.png" 
+    },
+    { 
+        name: "Frenesí", 
+        desc: "Entras en un estado de frenesí que te otorga Velocidad II.",
+        detail: "Cooldown: 25s. Obtienes Velocidad II. Si te aturden, pierdes la Velocidad II pero ganas Velocidad I y revelas el aura de tu atacante por 5s.",
+        img: "recursos/personajes/victor_hab2.png" 
+    },
+    { 
+        name: "Corte de Escena", 
+        desc: "Te lanzas hacia adelante con un dash ultrarrápido.",
+        detail: "Cooldown: 30s. Realizas un dash ultrarrápido. Si impactas a un survivor, le aplicas Lentitud IV por 2s y reinicias el cooldown de Frenesí.",
+        img: "recursos/personajes/victor_hab3.png" 
+    },
+    { 
+        name: "Espada de Victor", 
+        desc: "Al atacar realizas un barrido que realiza daño en area",
+        detail: "Es util para dañar a varios en area.",
+        img: "recursos/personajes/victor_hab4.png" 
+    }
+],
+        skins: [
+    { 
+        name: "Default", 
+        tier: "Común", 
+        desc: "Apariencia base de Victor: su casco de motocilista, chaqueta universitaria y pantalones de mezclilla. Su look es el de un joven que busca emociones fuertes y diversión a toda costa.", 
+        img: "recursos/personajes/victor_skin1.png" 
+    },
+    { 
+        name: "Verity", 
+        tier: "Raro", 
+        desc: "Verity, un asistente de IA que comienza siendo útil y amigable pero que, con el tiempo, se vuelve obsesivo y perturbador. Verity es la protagonista de la webserie de ThatMob, conocida por conocer detalles íntimos de la vida de su usuario y por su creciente comportamiento violento, convirtiéndose en una figura similar a un acosador.", 
+        img: "recursos/personajes/victor_skin2.png" 
+    },
+    { 
+        name: "Knocker", 
+        tier: "Raro", 
+        desc: "Una entidad nacida del acecho y el tormento psicológico. Acostumbrado a torturar a sus víctimas con ecos perturbadores y golpes en la penumbra antes de dar el zarpazo final, este cazador destruye lentamente la cordura de sus presas antes de reclamar sus vidas en el momento menos esperado.", 
+        img: "recursos/personajes/victor_skin3.png" 
+    },
+    { 
+        name: "Biker", 
+        tier: "Épico", 
+        desc: "Uno de los sicarios reclutados por 50 Blessings para cumplir sus macabros encargos a través de misteriosas llamadas telefónicas. Cansado de ser un peón en un juego ajeno pero adicto a la extrema violencia, ahora arrastra su hacha y su casco por este nuevo reino, entregado a un baño de sangre sin fin.", 
+        img: "recursos/personajes/victor_skin4.png" 
+    },
+    { 
+        name: "Batter", 
+        tier: "Épico", 
+        desc: "Una entidad guiada por una misión absolutista: purificar el mundo sin importar el costo. Aunque se autoproclama un salvador sagrado, su verdadera naturaleza revela una aberración espectral y despiadada que no se detendrá hasta borrar cualquier rastro de existencia y esperanza a su paso.", 
+        img: "recursos/personajes/victor_skin5.png" 
+    },
+    { 
+        name: "Yandere", 
+        tier: "Legendario", 
+        desc: "Ayano Aishi, la protagonista de Yandere Simulator. Conocida como 'Yandere-chan', sufre de un vacío emocional perpetuo que la deja vacía y sin sentimientos. Al conocer a su 'senpai', experimenta emociones por primera vez y desarrolla una obsesión enfermiza, eliminando a cualquiera que se interponga entre ella y su amor. Su capacidad para fingir normalidad oculta una mente completamente rota.", 
+        img: "recursos/personajes/victor_skin6.png" 
+    }
+]
+    },
+    rey: {
+        name: "Rey",
+        title: "El Monarca",
+        realName: "Rey",
+        img: "recursos/personajes/rey.png",
+        loreShort: "Un ex CEO que amaso una gran fortuna, enloquecido por la codicia y su obsesión por el poder, llevo a la ruina a su empresa y a su familia. Ahora busca desesperadamente recuperar lo que perdió, y no le importa a quien tenga que destruir en el proceso.",
+        loreFull: "Marcus no nació rico. Nació con hambre de reconocimiento. Su primer trabajo fue de mensajero en una empresa de inversiones pequeña, y descubrió que lo que más le gustaba no era el dinero, sino ver cómo las decisiones que tomaba destruían o elevaban vidas enteras. Le llamaban 'El Hacedor de Viudas' a sus espaldas, pero él lo sabía y lo disfrutaba. Con los años, amasó una fortuna comprando empresas en quiebra, despidiendo a miles, vendiendo los activos y declarándose en bancarrota estratégica. Nunca tuvo familia, nunca tuvo amigos, solo tuvo contratos, propiedades y enemigos. Su final llegó en su propia oficina, en el piso 48 de una torre que llevaba su apellido. Un hijo de un exempleado, armado con una pistola barata, logró burlar la seguridad. Marcus, en lugar de huir, se quedó quieto y le ofreció un trato: 'Mátame y tu familia no recibirá nada. Déjame vivir y te daré el doble de lo que te deben.' El chico dudó, y esa duda le costó un tiro en la pierna y luego otro en el pecho. Antes de que la policía llegara, Marcus tuvo un infarto, no por el dolor, sino por la adrenalina de haber manipulado a alguien hasta el último segundo. Su corazón se detuvo en la camilla del ascensor. La Falla se lo llevó. En su sueño ficticio, es dueño de todo. Su torre es más alta, sus acciones suben cada día, presidentes y celebridades le besan el anillo. No hay sindicatos, no hay demandas, no hay hijos de exempleados con pistolas. Vive en una junta directiva eterna donde cada palabra suya es ley.",
+        abilities: [
+    { 
+        name: "Ganancias", 
+        desc: "Revelas a todos los survivors que estén dentro de tu campo de visión, incluso a través de paredes.",
+        detail: "Cooldown: 25s. Ideal para limpiar áreas grandes o para saber quién se esconde detrás de una esquina.",
+        img: "recursos/personajes/rey_hab1.png" 
+    },
+    { 
+        name: "Monopolio", 
+        desc: "Bloqueas el uso de habilidades de los survivors en un radio de 18 bloques.",
+        detail: "Cooldown: 40s. Duración: 8s. Ganas un nivel de velocidad por cada survivor afectado (máx. Velocidad IV). Actívalo en zonas cerradas o durante una persecución múltiple para desactivar sus escapes.",
+        img: "recursos/personajes/rey_hab2.png" 
+    },
+    { 
+        name: "Monarquía", 
+        desc: "Todos los survivors en tu campo de visión caen de rodillas, perdiendo la capacidad de moverse y usar habilidades.",
+        detail: "Cooldown: 40s. Perfecto para emboscadas o para inmovilizar a un grupo mientras eliges a tu víctima.",
+        img: "recursos/personajes/rey_hab3.png" 
+    },
+    { 
+        name: "Hacha de Midas", 
+        desc: "Un ataque que daña a un solo survivor, mas daño, mas cooldown",
+        detail: "Maneja bien tus ataques para que no los falles.",
+        img: "recursos/personajes/rey_hab4.png" 
+    }
+],
+        skins: [
+    { 
+        name: "Default", 
+        tier: "Común", 
+        desc: "Apariencia base del Rey: su traje elegante y sobre el su abrigo de la realeza. ", 
+        img: "recursos/personajes/rey_skin1.png" 
+    },
+    { 
+        name: "Admin", 
+        tier: "Raro", 
+        desc: "Harto de los exploiters y grieffers que corrompen el orden de su mundo, este administrador ha decidido tomar el asunto en sus propias manos. Blande su hacha no solo como arma, sino como la herramienta definitiva de juicio para erradicar a cualquiera que se atreva a romper las reglas.", 
+        img: "recursos/personajes/rey_skin2.png" 
+    },
+    { 
+        name: "King Fallen", 
+        tier: "Raro", 
+        desc: "En una línea temporal trágica donde la batalla final contra Herobrine terminó en desastre, el noble monarca perdió su reino. Su cuerpo y su mente fueron consumidos por un glitch distorsionado, transformando al antiguo protector en una carcasa llena de ira y corrupción digital.", 
+        img: "recursos/personajes/rey_skin3.png" 
+    },
+    { 
+        name: "White Pumpkin", 
+        tier: "Épico", 
+        desc: "La siniestra identidad asumida por Cassie Rose. Escondida tras una pálida máscara de calabaza y guiada por una obsesión enfermiza por escapar de su encierro, no dudará en tender trampas mortales y masacrar a quien se cruce en su camino para lograr su cometido.", 
+        img: "recursos/personajes/rey_skin4.png" 
+    },
+    { 
+        name: "King in Yellow", 
+        tier: "Épico", 
+        desc: "Inspirado en la enigmática entidad de las obras de Robert W. Chambers. Envuelto en harapos amarillos y bajo una máscara pálida, este monarca de Carcosa extienda una locura cósmica e inevitable que destruye la cordura de cualquiera que se atreva a contemplarlo.", 
+        img: "recursos/personajes/rey_skin5.png" 
+    },
+    { 
+        name: "Mago", 
+        tier: "Legendario", 
+        desc: "El hijo del Rey, un joven que heredó la fortuna de su padre pero no su ambición. Aburrido y con demasiado tiempo libre, su padre le compró un kit de magia para mantenerlo entretenido y fuera de su camino. Ahora usa sus trucos de ilusionismo para confundir a los survivors antes de castigarlos. Viste una capa púrpura con estrellas plateadas y un sombrero de copa, y su cetro ha sido reemplazado por una varita mágica.", 
+        img: "recursos/personajes/rey_skin6.png" 
+    }
+]
+    },
+    guardian: {
+        name: "Guardian",
+        title: "El Caballero",
+        realName: "Stuart",
+        img: "recursos/personajes/guardian.png",
+        loreShort: "Una vieja armadura poseida por quien alguna vez juro proteger un reino que a nuestros dias ya no existe, destruira a quien se atreva a profanar su honor y el de su antiguo rey.",
+        loreFull: "Stuart vivió en una época que los libros de historia llaman 'Edad Oscura', pero él la recuerda como la única edad que importaba. Fue el comandante de la guardia real de un reino pequeño, enclavado entre montañas y bosques tan densos que ni los invasores los encontraban a menudo. Su rey era viejo, su princesa era niña, y su reino era pobre pero libre. Stuart hizo un juramento frente a un roble ancestral: 'Protegeré estas tierras con mi vida, y si mi vida no basta, con mi muerte.' Nadie se lo tomó en serio, excepto él. El reino cayó no por espadas, sino por hambre. Una plaga arrasó los cultivos, los súbditos huyeron, el rey murió de pena, y la princesa fue entregada a un señor feudal vecino a cambio de trigo. Stuart no pudo evitarlo, su juramento no incluía cosechas ni política. La última noche, solo en el salón del trono vacío, Stuart se clavó su propia espada en el pecho. No por cobardía, porque creía que el juramento seguía vigente y que la muerte era el único puesto que le quedaba. Su cuerpo fue encontrado días después, aún de rodillas, la espada hundida, los ojos abiertos mirando un trono que ya no existía. La Falla se lo llevó. En su sueño ficticio, el reino nunca cayó, las cosechas son abundantes, el rey anciano aún vive aunque nunca aparece, y la princesa creció y gobierna con sabiduría. Stuart sigue siendo el comandante de la guardia, respetado por todos, temido por los enemigos.",
+        abilities: [
+    { 
+        name: "Vigilancia", 
+        desc: "Obtienes Velocidad y revelas las auras de todos los survivors durante 5 segundos.",
+        detail: "Cooldown: 20s. Úsalo al empezar una persecución o para localizar a los que se esconden.",
+        img: "recursos/personajes/guardian_hab1.png" 
+    },
+    { 
+        name: "Postura", 
+        desc: "Te arrodillas y obtienes Fuerza II por 7 segundos.",
+        detail: "Cooldown: 30s. Si te aturden: obtienes Velocidad II y todos los survivors en un radio de 16 bloques reciben Lentitud I. Úsalo si sabes que van a intentar aturdirte.",
+        img: "recursos/personajes/guardian_hab2.png" 
+    },
+    { 
+        name: "Corcel", 
+        desc: "Invoca a tu caballo esqueleto y lo montas automáticamente.",
+        detail: "Cooldown: 50s. Mientras cabalgas, solo puedes usar tu lanza. Al desmontar o usar el item de nuevo, el caballo explota tras 2 segundos, aplicando Darkness, Náuseas y Lentitud en área. Usa la explosión para despejar un área o para escapar si te rodean.",
+        img: "recursos/personajes/guardian_hab3.png" 
+    },
+    { 
+        name: "Lanza", 
+        desc: "Dos modos de ataque, dependiendo de la velocidad.",
+        detail: "Acumula velocidad para generar mas daño.",
+        img: "recursos/personajes/guardian_hab4.png" 
+    }
+],
+        skins: [
+    { 
+        name: "Default", 
+        tier: "Común", 
+        desc: "Armadura base.", 
+        img: "recursos/personajes/guardian_skin1.png" 
+    },
+    { 
+        name: "Ajolote", 
+        tier: "Raro", 
+        desc: "Una armadura ceremonial impregnada de tonos rosados y estructuras que evocan las branquias de un ajolote. Su diseño anfibio combina una elegancia exótica con una resistencia formidable para acechar en cualquier entorno.", 
+        img: "recursos/personajes/guardian_skin2.png" 
+    },
+    { 
+        name: "Chamuscado", 
+        tier: "Raro", 
+        desc: "Forjada en el metal más resistente del inframundo, esta armadura de netherita soporta un fuego voraz e inagotable que brota violentamente de sus uniones, convirtiendo a su portador en un coloso incandescente.", 
+        img: "recursos/personajes/guardian_skin3.png" 
+    },
+    { 
+        name: "Mármol", 
+        tier: "Raro", 
+        desc: "Tallada en pulcro mármol blanco y ornamentada con alas angelicales. Esta indumentaria transmite una presencia divina y majestuosa, ocultando la implacable crueldad del guardián tras una fachada de juicio celestial.", 
+        img: "recursos/personajes/guardian_skin4.png" 
+    },
+    { 
+        name: "Impío", 
+        tier: "Raro", 
+        desc: "La contraparte profana de la armadura celestial. Construida con placas abisales y rematada con afilados rasgos demoníacos, esta piel canaliza una malevolencia pura que retuerce la figura del guardián en una aberración de pesadilla.", 
+        img: "recursos/personajes/guardian_skin5.png" 
+    }
+]
+    },
+    abismo: {
+        name: "Abismo",
+        title: "El Capitán",
+        realName: "Morgan",
+        img: "recursos/personajes/abismo.png",
+        loreShort: "Un capitán traicionado y arrojado al mar, ahora regresa como una criatura del abismo. Su sed de venganza es tan profunda como el océano que lo devoró.",
+        loreFull: "Morgan no fue un gran capitán. Fue un hombre mediocre que heredó un barco pesquero y lo convirtió en un carguero ilegal. Transportaba lo que nadie quería declarar: armas viejas, medicinas caducadas, personas que pagaban por desaparecer. Su tripulación lo odiaba pero le temía, y él les pagaba con monedas y con silencios. La traición no vino de un enemigo, vino de su propio contramaestre, un hombre llamado Silas que llevaba años esperando su momento. Una noche de tormenta, cuando el barco navegaba frente a las costas de un país cuyo nombre Morgan ni siquiera recordaba, Silas dio la orden. La tripulación lo amordazó, le ataron el ancla al tobillo izquierdo y lo arrojaron por la borda. Morgan recuerda el agua helada, el peso del ancla tirando, la luz de la superficie haciéndose más pequeña. Y recuerda, justo antes de que sus pulmones se rindieran, que algo lo miró desde abajo. No era un pez, no era un dios, era más viejo, una presión en el agua que no era corriente, sino curiosidad. Morgan murió ahogado en el fondo del océano. Pero algo decidió que no se quedara ahí. La Falla se lo llevó. En su sueño ficticio, cada mañana despierta en el fondo del mar. No se ahoga, no siente frío. Su cuerpo ha cambiado: tentáculos brotan de su espalda, sus ojos brillan con luz cian, y el agua le obedece. Él es el abismo ahora.",
+        abilities: [
+    { 
+        name: "Sonar de Presión", 
+        desc: "Durante 7 segundos, cualquier survivor que esté corriendo o saltando revela su aura al instante.",
+        detail: "Cooldown: 25s. Perfecto para cazar a los que intentan huir. El sigilo no les servirá si se mueven.",
+        img: "recursos/personajes/abismo_hab1.png" 
+    },
+    { 
+        name: "Grito", 
+        desc: "Lanzas un grito que aplica lentitud a los survivors según su distancia.",
+        detail: "Cooldown: 35s. Carga 2.5 segundos (inmovilizado). Si te aturden durante la carga, al recuperarte ganas Velocidad II por 5 segundos. Carga en un lugar seguro o úsalo para ralentizar a un grupo.",
+        img: "recursos/personajes/abismo_hab2.png" 
+    },
+    { 
+        name: "Impulso", 
+        desc: "Te lanzas hacia adelante con gran velocidad.",
+        detail: "Cooldown: 20s. Ideal para reposicionarte rápidamente o para alcanzar a un survivor herido.",
+        img: "recursos/personajes/abismo_hab3.png" 
+    },
+    { 
+        name: "Pistola de Avancarga", 
+        desc: "Ataque a distancia con un cooldown bajo.",
+        detail: "Recuerda apuntar bien.",
+        img: "recursos/personajes/abismo_hab4.png" 
+    }
+],
+        skins: [
+    { 
+        name: "Default", 
+        tier: "Común", 
+        desc: "Apariencia base del Abismo: un capitán transformado por el océano, con tentáculos y ojos brillantes de luz cian, vestido con los harapos de su antiguo uniforme de capitán.", 
+        img: "recursos/personajes/abismo_skin1.png" 
+    },
+    
+    { 
+        name: "Alterno", 
+        tier: "Raro", 
+        desc: "No es una persona, sino una aberración que viste una cara prestada. Surgido de los rincones más perturbadores de la red, esta imitación antinatural de César Torres sustituye la presencia de sus víctimas, distorsionando sus expresiones hasta quebrar la cordura de quienes lo rodean antes de dar la estocada final.", 
+        img: "recursos/personajes/abismo_skin2.png" 
+    },
+    { 
+        name: "HeartBroken", 
+        tier: "Raro", 
+        desc: "Ahogado en un mar de melodramas, poesía barata y canciones tristes que nadie le pidió escuchar, este chico oculta su alma incomprendida bajo un gorro usanka y ropa tan oscura como sus pensamientos. Convencido de que el mundo le rompió el corazón, ahora vaga buscando que los demás sientan el mismo dolor insoportable que él carga a diario.", 
+        img: "recursos/personajes/abismo_skin3.png" 
+    },
+    { 
+        name: "Capitán Clark", 
+        tier: "Raro", 
+        desc: "Una manifestación nacida directamente de la psique fragmentada del verdadero Clark, proyectada en la inmensidad de los pasillos amarillos. La soledad y el encierro moldearon a este despiadado capitán corsario, un espectro obsesionado que vaga por la estructura sin importarle a cuántas víctimas deba reclamar para encontrar una salida.", 
+        img: "recursos/personajes/abismo_skin4.png" 
+    },
+    { 
+        name: "Gusano Solitario", 
+        tier: "Legendario", 
+        desc: "Un esqueleto vaquero que emerge de un desierto alucinógeno, impulsado por una frenética y tóxica reacción química. Con una estrella oxidada en el pecho y el veneno corriendo por sus venas, vaga disparando a ciegas en un frenesí absoluto, dispuesto a reducir a cenizas a todo el que se atraviese en su camino.", 
+        img: "recursos/personajes/abismo_skin5.png" 
+    },
+    { 
+        name: "Grox", 
+        tier: "Raro", 
+        desc: "Grox, el infame YouTuber estadounidense conocido por su crueldad con los aldeanos en Minecraft. Grox suele aparecer como un esqueleto Wither con traje negro y corbata roja, y su personalidad es la de un tirano que utiliza armamento militar para someter a sus víctimas. Siendo comparado con un villano frío y arrogante. Su presencia en el reino de la Falla lo convierte en un cazador implacable que disfruta del caos que siembra.", 
+        img: "recursos/personajes/abismo_skin6.png" 
+    },
+]
+    },
+    consumida: {
+        name: "Consumida",
+        title: "La Enamorada",
+        realName: "Corey",
+        img: "recursos/personajes/consumida.png",
+        loreShort: "Una joven consumida por el rencor y el odio, decidida a infligir en los demás todo el dolor que ha sufrido. Aunque una vez fue una chica enamorada, no tiene reparos en atacar a sus víctimas por la espalda para que sientan su dolor y sufrimiento.",
+        loreFull: "Corey nació en las calles de Argentina, sin familia, sin nombre que la reclamara. Creció entre cartones y azulejos rotos, durmiendo en estaciones de metro, aprendiendo a sobrevivir antes que a hablar. Era una chica felina antropomórfica, y los otros niños de la calle la llamaban 'gata callejera' como insulto. No odiaba al mundo, lo soportaba, hasta que llegó él. No sabemos su nombre, pero era alguien que la miraba como si no fuera invisible, alguien que por primera vez la hacía sentir que merecía estar viva. El día que iba a confesar sus sentimientos, escuchó la noticia en una radio vieja: un accidente, un vehículo, un freno demasiado tarde. Su persona favorita había muerto. La enfermedad de Hanahaki no espera. Crece en los pulmones cuando el amor no es correspondido. Pero Corey no tuvo solo pétalos, tuvo ramas enteras. Las ramas de cerezo rasgaban su piel desde dentro, salían por su espalda, por sus brazos, por las comisuras de sus ojos. No fue a un hospital. Fue a la tumba. Ahí, con las ramas abriéndose paso entre su carne, con el nombre de su amor grabado en una piedra, Corey cerró los ojos. Su corazón se detuvo apoyado contra la lápida. La Falla se la llevó. En su sueño ficticio, está al lado de la tumba de su amor. Siempre es atardecer, el viento mueve los cerezos que brotan de su propio cuerpo pero ya no le duelen, puede hablar con la piedra, puede contarle su día, puede dejar flores nuevas cada mañana. Nadie la corre de ahí. Es su paraíso.",
+        abilities: [
+    { 
+        name: "Sentido", 
+        desc: "Revelas las auras de todos los survivors. Duración variable según su vida.",
+        detail: "Cooldown: 30s. Cuanto menos vida tenga el survivor, más tiempo será revelado (entre 1.5 y 5 segundos). Apunta a los heridos; los verás por más tiempo y podrás rematarlos fácilmente.",
+        img: "recursos/personajes/consumida_hab1.png" 
+    },
+    { 
+        name: "Ritual", 
+        desc: "Te vuelves casi invisible durante 15 segundos, generando partículas de humo.",
+        detail: "Cooldown: 45s. Solo conservas tu daga. Si atacas o te aturden, el ritual se cancela. Muévete con sigilo y ataca por la espalda. Un solo golpe rompe el hechizo, así que elige bien.",
+        img: "recursos/personajes/consumida_hab2.png" 
+    },
+    { 
+        name: "Implorar", 
+        desc: "Revelas el aura de todos los survivors y te teletransportas a uno en un radio de 20 bloques.",
+        detail: "Cooldown: 60s. Al usarla, revelas el aura de todos los survivors. Si hay un survivor en un radio de 20 bloques, te teletransportas a él. Si hay más de uno, se elegirá uno al azar. Perfecto para aparecer justo donde menos te esperan.",
+        img: "recursos/personajes/consumida_hab3.png" 
+    },
+    { 
+        name: "Daga", 
+        desc: "Ataque rápido que hace más daño por la espalda.",
+        detail: "Pasivo. Daño: 4. +50% daño por detrás.",
+        img: "recursos/personajes/consumida_hab4.png" 
+    }
+],
+    skins: [
+    { 
+        name: "Default", 
+        tier: "Común", 
+        desc: "Apariencia base de La Consumida: una joven felina con ramas de cerezo brotando de su cuerpo, vestida con harapos y marcada por el dolor de un amor perdido.", 
+        img: "recursos/personajes/consumida_skin1.png" 
+    },
+    { 
+        name: "Otoño", 
+        tier: "Raro", 
+        desc: "Un rediseño que abraza la calidez y melancolía del follaje seco. Cubierta con una franela ligera y luciendo hojas teñidas en tonos fuego y terracota, esta forma evoca la inevitable marcha de la naturaleza hacia la decadencia.", 
+        img: "recursos/personajes/consumida_skin2.png" 
+    },
+    { 
+        name: "Genesis", 
+        tier: "Épico", 
+        desc: "Una mirada al origen primordial de su existencia. Vistiendo la indumentaria de sus primeros días y desplegando alas angelicales de luz, esta apariencia representa el último vestigio de pureza antes de ser consumida por la penumbra.", 
+        img: "recursos/personajes/consumida_skin3.png" 
+    },
+    { 
+        name: "Scenecore", 
+        tier: "Épico", 
+        desc: "Una explosión vibrante de nostalgia e intensidad cibernética. Con ropa sobrecargada en tonos neón y alas resplandecientes que conmutan en un ciclo RGB infinito, convierte el caos visual en su firma más llamativa.", 
+        img: "recursos/personajes/consumida_skin4.png" 
+    },
+    { 
+        name: "WeatherGirl", 
+        tier: "Épico", 
+        desc: "Inspirada en las cambiantes tormentas y los ecos melancólicos de Eleanor Forte. Esta apariencia convierte al personaje en una mensajera del clima desolador, anunciando precipitaciones de dolor y vientos helados de los que ningún superviviente podrá refugiarse.", 
+        img: "recursos/personajes/consumida_skin5.png" 
+    },
+    { 
+        name: "Girasol", 
+        tier: "Legendario", 
+        desc: "El eco de una primavera donde el amor sí floreció, aunque no como debía. Cubierto de pétalos amarillos y una mirada sofocante, esta apariencia encarna una pasión tan obsesiva que terminó quitándole el aliento a quien juraba proteger.", 
+        img: "recursos/personajes/consumida_skin6.png" 
+    }
+]
+    },
+    impostor: {
+        name: "Impostor",
+        title: "El Anónimo",
+        realName: "???",
+        img: "recursos/personajes/impostor.png",
+        loreShort: "El líder criminal desconocido tras las máscaras de papel, que utiliza el misterio y el caos para juzgar a sus víctimas. Nadie sabe quién es realmente, ni siquiera si es una sola persona.",
+        loreFull: "No hay registros de quién fue el Impostor. No hay nombre, no hay foto, no hay familia que lo reclame. No se sabe si es hombre o mujer, ni siquiera si alguna vez fue una sola persona. Lo que se sabe es que en algún momento, un grupo de personas comenzó a operar bajo una misma firma: una bolsa de papel con dos agujeros para los ojos. No tenían ideología fija, solo tenían un método: la manipulación absoluta. Entraban en foros cifrados, falsificaban identidades, destruían reputaciones, y cuando la manipulación no bastaba, pasaban al secuestro. El Impostor no era un líder en el sentido tradicional, era un rol que cualquiera podía asumir. Un día, los foros se volvieron silenciosos. Los miembros se fueron a sus vidas, la máscara de papel se convirtió en un recuerdo, luego en nada. El Impostor no murió, fue abandonado por su propia creación. En ese vacío, la Falla absorbió el concepto mismo del Impostor: la máscara sin rostro, la voz que no tiene dueño, el líder que tal vez nunca existió. En su sueño ficticio, su organización sigue activa, los foros cifrados están llenos, miles de máscaras de papel trabajan bajo sus órdenes, y nunca lo abandonan.",
+        abilities: [
+    { 
+        name: "Acecho", 
+        desc: "Aplica Darkness a todos los survivors según su distancia. Cuanto más lejos estén, más dura el efecto.",
+        detail: "Cooldown: 30s. Duración: entre 2 y 8 segundos según la distancia. Desorienta a los que están lejos mientras tú te encargas de los que tienes cerca.",
+        img: "recursos/personajes/impostor_hab1.png" 
+    },
+    { 
+        name: "Paranoia", 
+        desc: "Te vuelves completamente invisible durante 6 segundos.",
+        detail: "Cooldown: 50s. Todos los survivors en un radio de 20 bloques reciben Darkness, Náuseas, Ceguera y un fuerte knockback. Perfecto para sembrar el caos en grupo y separarlos.",
+        img: "recursos/personajes/impostor_hab2.png" 
+    },
+    { 
+        name: "Cambiaformas", 
+        desc: "Te transformas en un survivor, cambiando tu apariencia por una skin aleatoria.",
+        detail: "Cooldown: 45s. Solo conservas tu guadaña. El disfraz dura 20 segundos o hasta que lo canceles. Si te descubren (cancelas el disfraz), todos los survivors en un radio de 20 bloques sufren Darkness y Náuseas. Acércate a ellos sin levantar sospechas y ataca por sorpresa.",
+        img: "recursos/personajes/impostor_hab3.png" 
+    },
+    { 
+        name: "Missigno", 
+        desc: "???.",
+        detail: "???.",
+        img: "recursos/personajes/impostor_hab4.png" 
+    }
+],
+        skins: [
+    { 
+        name: "Default", 
+        tier: "Común", 
+        desc: "Apariencia base del Impostor: un ser sin rostro tras una bolsa de papel, con una identidad tan difusa que ni siquiera él mismo sabe quién es realmente.", 
+        img: "recursos/personajes/impostor_skin1.png" 
+    },
+    { 
+        name: "Cuptoast", 
+        tier: "Raro", 
+        desc: "Una chica que solo necesita una caja de cartón con un rostro garabateado para ocultar su identidad. Tras esa expresión dibujada e imperturbable, esta joven cazadora avanza en absoluto silencio, convirtiendo una apariencia infantil en una perturbadora pesadilla.", 
+        img: "recursos/personajes/impostor_skin2.png" 
+    },
+    { 
+        name: "Dr. Flug", 
+        tier: "Raro", 
+        desc: "El neurótico científico de una corporación del mal. Oculto tras su emblemática bolsa de papel y ajustándose los lentes de protección, blande una pesada llave inglesa para erradicar a los supervivientes y cumplir sus experimentos a toda costa, evitando así el terrible castigo de Black Hat.", 
+        img: "recursos/personajes/impostor_skin3.png" 
+    },
+    { 
+        name: "Aspirante", 
+        tier: "Raro", 
+        desc: "Un seguidor obsesionado con alcanzar la infamia de los asesinos más temidos. Con una bolsa improvisada en la cabeza y el deseo desesperado de ser reconocido por su ídolo, desata un frenesí de violencia desenfrenada contra cualquiera en su camino.", 
+        img: "recursos/personajes/impostor_skin4.png" 
+    },
+    { 
+        name: "Number", 
+        tier: "Épico", 
+        desc: "Forjado en el compás frenético de una animación hipnótica. Moviéndose al ritmo de un pulso rítmico e incesante bajo su máscara de papel, este ejecutor convierte la cacería en una coreografía calculada y letal.", 
+        img: "recursos/personajes/impostor_skin5.png" 
+    },
+    { 
+        name: "Charlie", 
+        tier: "Legendario", 
+        desc: "Entre el humo del averno y el eco de una trompeta lejana, resuena la historia de Charlie: el santurrón que descubrió demasiado tarde que su moral era de papel. Desechado por los ángeles y arrastrado al abismo, vaga atrapado en su propio infierno personal, desquitando su condena eterna con cualquiera que se cruce en su camino.", 
+        img: "recursos/personajes/impostor_skin6.png" 
+    }
+]
+    },
+    experimento: {
+        name: "Experimento",
+        title: "El Sujeto",
+        realName: "Frank",
+        img: "recursos/personajes/experimento.png",
+        loreShort: "Un experimento fallido que escapó de sus captores, pero la paranoia nunca lo abandonó. Secuestrado y torturado en un laboratorio ruso, su mente fue moldeada por el dolor y el miedo. Convencido de que los científicos que lo torturaron aún lo buscan, ve amenazas en cada rostro. Mata por miedo, no por odio, y su hoz oxidada es el único testigo de su huida.",
+        loreFull: "Frank creció en un orfanato de Argentina junto a su hermana Corey, ambos gatos antropomórficos. Una noche, el orfanato ardió. Frank despertó con el humo llenándole los pulmones y lo primero que hizo fue buscar a Corey, gritar su nombre entre las llamas. Lograron escapar juntos, pero en la confusión de la noche se perdieron. Frank creyó que Corey había muerto. Mientras ella terminó en las calles, Frank fue secuestrado por científicos rusos que buscaban sujetos de prueba antropomórficos para convertirlos en espías. Lo sometieron a experimentos crueles: inyecciones que le quemaban las venas, electrodos en la cabeza, privación de sueño, lavado de cerebro. Le pusieron un número en lugar de un nombre y le robaron casi todos sus recuerdos, excepto el rostro borroso de su hermana. Años después, Frank logró escapar. Corrió hasta encontrar una granja abandonada en medio de las montañas rusas (el mapa Harvest), pero los científicos lo persiguieron. Tomó una hoz oxidada y acabó con ellos, aunque resultó mortalmente herido en la pelea. Antes de morir, uno de los científicos moribundos le susurró que nunca dejarían de buscarlo, que no sabría quiénes son, que podrían ser cualquiera. Esas palabras se grabaron en su mente. Frank murió en el suelo de aquella granja, solo, sin haber encontrado nunca a su hermana. La Falla se lo llevó. En su sueño ficticio, Frank vive en la granja, a salvo, recordando haber sobrevivido. Pero las palabras del científico lo persiguen y cree que los supervivientes son los científicos disfrazados que vienen a llevárselo de vuelta al laboratorio.",
+        abilities: [
+    { 
+        name: "Instinto de Cazador", 
+        desc: "Frank se agacha y escanea el área en busca de survivors heridos (menos del 60% de vida).",
+        detail: "Cooldown: 25s (12s si no hay heridos en el área). Los survivors heridos en un radio de 50 bloques son revelados con glow rojo durante 6 segundos. Úsalo para localizar a los que intentan curarse o escapar con poca vida.",
+        img: "recursos/personajes/experimento_hab1.png" 
+    },
+    { 
+        name: "Infección", 
+        desc: "Frank se golpea el pecho y entra en estado de furia durante 8 segundos.",
+        detail: "Cooldown: 35s. Obtienes Velocidad II y tus ataques hacen +2 de daño adicional. Si te stunean durante el buff, no te aturdes. Entras en Furia Incontrolable: Velocidad IV y doble de Hemorragia (4s). Actívalo antes de enfrentarte a un grupo. Si intentan aturdirte, los castigarás aún más.",
+        img: "recursos/personajes/experimento_hab2.png" 
+    },
+    { 
+        name: "Carga", 
+        desc: "Frank realiza un dash rápido de 8 bloques hacia adelante.",
+        detail: "Cooldown: 22s. Si golpea a un survivor: inflige 6 puntos de daño y aplica Lentitud I durante 3 segundos. Si falla: tropieza y queda inmóvil durante 1 segundo. Perfecto para cerrar distancias o atrapar a los que intentan huir.",
+        img: "recursos/personajes/experimento_hab3.png" 
+    },
+    { 
+        name: "Hoz oxidada", 
+        desc: "Ataque que puede causar hemorragia.",
+        detail: "Pasivo. Daño: 5. Sangrado: 2 segundos.",
+        img: "recursos/personajes/experimento_hab4.png" 
+    }
+],
+        skins: [
+    { 
+        name: "Default", 
+        tier: "Común", 
+        desc: "Apariencia base de Frank: un gato antropomórfico con cicatrices de los experimentos, vistiendo un harapo de laboratorio manchado y empuñando su hoz oxidada. Su mirada refleja la paranoia de quien ha sido cazado toda su vida.", 
+        img: "recursos/personajes/experimento_skin1.png" 
+    },
+    { 
+        name: "Somnífero", 
+        tier: "Raro", 
+        desc: "Una silueta felina y demacrada de la que emana una densa bruma rojiza. Este ejecutor adormece la voluntad de sus presas mediante vapores narcolépticos, arrastrándolas a una pesadilla de la que jamás podrán despertar.", 
+        img: "recursos/personajes/experimento_skin2.png" 
+    },
+    { 
+        name: "Cocinero", 
+        tier: "Raro", 
+        desc: "Protegido tras un traje de bioseguridad amarillo, desgastado por la corrosión y salpicado de químicos volátiles. Trata cada rincón del terreno como un laboratorio de campo, manipulando sustancias tóxicas con una precisión metódica y despiadada.", 
+        img: "recursos/personajes/experimento_skin3.png" 
+    },
+    { 
+        name: "Token", 
+        tier: "Épico", 
+        desc: "Una figura felina que parece moverse a través de ráfagas de distorsión y estática visceral. Cubierto de parches y manchas de sangre, este cazador hiperactivo se desplaza con un ritmo desenfrenado e impredecible, guiado puramente por la adrenalina y el caos de su mente.", 
+        img: "recursos/personajes/experimento_skin4.png" 
+    },
+    { 
+        name: "Scenecore", 
+        tier: "Épico", 
+        desc: "Una llamativa y grotesca fusión entre la estética cibernética neón y el peligro mutante. Ataviado con indumentaria sobrecargada de color y luciendo imponentes alas de dragón, convierte su silueta en una visión tan deslumbrante como letal.", 
+        img: "recursos/personajes/experimento_skin5.png" 
+    },
+    { 
+        name: "Lone", 
+        tier: "Legendario", 
+        desc: "Frank se transforma en uno de los tres gatos negros protagonistas del videoclip de 'Lone Digger' de Caravan Palace. Vistiendo un elegante traje azul y con una apariencia felina estilizada, este gato no es lo que aparenta: bajo sus dulces ojos se esconden garras letales capaces de desatar un baile de sangre en cualquier club nocturno. En el reino de la Falla, Lone mantiene esa misma esencia de elegancia y ferocidad, listo para convertir cualquier persecución en una coreografía mortal.", 
+        img: "recursos/personajes/experimento_skin6.png" 
+    }
+]
+    },
+    mafioso: {
+        name: "Mafioso",
+        title: "El Apostador",
+        realName: "Ángel",
+        img: "recursos/personajes/mafioso.png",
+        loreShort: "Un apostador de Las Vegas que siempre jugaba con ventaja, hasta que sus rivales decidieron cobrarle la deuda en un callejón oscuro. Su bastón de ébano, herencia de su abuelo, ahora cobra venganza en cada golpe, porque la suerte siempre está de su lado.",
+        loreFull: "Ángel nació en Las Vegas, en el seno de una familia adinerada que había construido su fortuna en los casinos y las apuestas. Desde niño, el dinero y el azar eran el aire que respiraba, el ritmo que marcaba su corazón. Su abuelo, un viejo apostador, le regaló su bastón de ébano con empuñadura de oro, y le dijo: 'Este bastón te recordará que la suerte es solo una herramienta. La verdadera magia está en saber cuándo usarla.' Ángel creció como un jugador nato, ganando partidas de póker clandestinas, carreras de caballos, apuestas de todo tipo. Su familia lo llamaba 'El Niño de la Suerte', y él lo creía ciegamente. Una noche, en una partida de póker en un casino subterráneo, Ángel se enfrentó a un grupo de apostadores rivales que llevaban años esperando su oportunidad para derribarlo. Lo acusaron de hacer trampa, y aunque Ángel siempre había usado trucos sucios para mantener su racha, esa noche no había hecho nada. Los rivales lo rodearon en el callejón trasero del casino, le arrebataron su bastón y lo golpearon hasta dejarlo casi sin vida. Mientras yacía en el suelo, uno de ellos se inclinó y susurró: 'La suerte no es eterna, Ángel. Llegó tu turno de pagar.' Y lo remató con su propio bastón. La Falla lo encontró en el umbral de la muerte y le ofreció una apuesta eterna. En su sueño ficticio, la partida nunca termina y él siempre gana. Los casinos son infinitos, las apuestas siempre caen a su favor, y nadie lo cuestiona porque él es la ley, el rey del azar.",
+        abilities: [
+    { 
+        name: "Golpe de Suerte", 
+        desc: "El bastón del Mafioso tiene un 50% de probabilidad de ser un golpe de suerte, brillando con un destello dorado.",
+        detail: "Pasivo. Si ocurre el golpe de suerte: el Mafioso obtiene Velocidad II durante 3s. El survivor golpeado recibe Velocidad I durante 3s y durante 5s deja caer partículas de billetes y monedas que delatan su posición. Los golpes normales no tienen efectos adicionales.",
+        img: "recursos/personajes/mafioso_hab1.png" 
+    },
+    { 
+        name: "Ojo de la Mafia", 
+        desc: "El Mafioso se detiene y observa, marcando a todos los survivors con glow rojo.",
+        detail: "Cooldown: 20s. Todos los survivors son revelados con glow rojo durante 5s. Los que estén en un radio de 20 bloques son revelados durante 7s y reciben Lentitud I durante 3s. Úsalo al inicio de la ronda para localizar a los que intentan esconderse.",
+        img: "recursos/personajes/mafioso_hab2.png" 
+    },
+    { 
+        name: "Soborno Mortal", 
+        desc: "El Mafioso arroja billetes al aire y entra en estado de Codicia durante 7 segundos.",
+        detail: "Cooldown: 40s. Obtienes Velocidad III durante 5s, Fuerza II durante 6s, y dejas caer partículas de billetes y monedas durante 5s. Actívalo antes de enfrentarte a un grupo o para cerrar distancias rápidamente.",
+        img: "recursos/personajes/mafioso_hab3.png" 
+    },
+    { 
+        name: "Golpe de Estado", 
+        desc: "El Mafioso golpea el suelo con su bastón, liberando una onda expansiva.",
+        detail: "Cooldown: 30s. Debe tener el bastón equipado. Carga 1s (inmovilizado). Los survivors en un radio de 10 bloques reciben 4 puntos de daño (2 corazones) y son revelados con glow durante 5s. Perfecto para castigar a grupos o acabar con varios heridos a la vez. Úsalo con cuidado, quedas expuesto durante la carga.",
+        img: "recursos/personajes/mafioso_hab4.png" 
+    }
+],
+        skins: [
+    { 
+        name: "Default", 
+        tier: "Común", 
+        desc: "Apariencia base del Mafioso: un elegante traje negro, bastón de ébano con empuñadura de oro y la actitud de quien siempre tiene un as bajo la manga.", 
+        img: "recursos/personajes/mafioso_skin1.png" 
+    },
+    { 
+        name: "Rey Dado", 
+        tier: "Raro", 
+        desc: "El gran maestro de los juegos de azar y mano derecha del diablo. Oculto tras un impecable traje de gala y una cabeza de dado, este manipulador disfruta convertir cada cacería en una apuesta donde la casa siempre gana y el único pago aceptado es la vida.", 
+        img: "recursos/personajes/mafioso_skin2.png" 
+    },
+    { 
+        name: "El Hijo", 
+        tier: "Raro", 
+        desc: "El ambicioso heredero de un imperio criminal bañado en neón y sangre. Impulsado por el deseo irracional de superar el legado de su padre, desata un frenesí de violencia impredecible sin dudar en erradicar a cualquiera que interceda en su ascenso al trono.", 
+        img: "recursos/personajes/mafioso_skin3.png" 
+    },
+    { 
+        name: "El Una Vez", 
+        tier: "Raro", 
+        desc: "Un visionario de la codicia que vistió de verde mientras consumía reinos enteros para erigir su imperio. Cegado por la ambición y el progreso sin límites, no se detendrá ante nada ni nadie hasta haber explotado la última gota de esperanza de este mundo.", 
+        img: "recursos/personajes/mafioso_skin4.png" 
+    },
+    { 
+        name: "Fluffy", 
+        tier: "Épico", 
+        desc: "La máxima expresión de extravagancia y ostentación. Esta criatura cubierta de denso pelaje viste una indumentaria de altísima costura, combinando una elegancia aristocrática con una presencia imponente que no pierde la distinción ni en el acto más sangriento.", 
+        img: "recursos/personajes/mafioso_skin5.png" 
+    },
+    { 
+        name: "Ángel", 
+        tier: "Legendario", 
+        desc: "Inspirado en 'Laplace's Angel' de Will Wood, esta skin representa la justificación moral: la canción cuestiona la diferencia entre el bien y el mal, con un narrador que ha cometido actos cuestionables y se defiende preguntando '¿acaso soy realmente tan malo?', argumentando que cualquiera en su lugar haría lo mismo, ya que todos estamos moldeados por nuestras circunstancias y nuestra biología.", 
+        img: "recursos/personajes/mafioso_skin6.png" 
+    }
+]
+    }
+};
+
+            // ---- DATOS DE MAPAS ----
+            const mapData = [
+    { 
+        name: "Harvest", 
+        desc: "Una vieja cabaña rural en las montañas de Rusia, utilizada para la producción agrícola estatal. Los cultivos nunca crecen del todo y una casa partida a la mitad yace fuera de los límites.",
+        img: "recursos/mapas/harvest.png" 
+    },
+    { 
+        name: "Ikea", 
+        desc: "Un complejo IKEA sellado en las afueras de Santa Fe, Nuevo México. Pasillos interminables, muebles sin ensamblar y el exterior es inaccesible, con puertas de vidrio indestructibles.",
+        img: "recursos/mapas/ikea.png" 
+    },
+    { 
+        name: "Woods", 
+        desc: "Las ruinas de un campamento de verano en los bosques de Nueva Jersey. La salida está bloqueada por un árbol de metal que nunca podría moverse, y el eco de risas infantiles aún persiste en las cabañas podridas.",
+        img: "recursos/mapas/woods.png" 
+    },
+    { 
+        name: "Construct", 
+        desc: "Una estructura de pruebas y patio de juegos de Garry en Estados Unidos. Edificios perfectos, césped que huele a plástico y un lago sin fondo con un reflejo que se mueve desincronizado.",
+        img: "recursos/mapas/construct.png" 
+    },
+    { 
+        name: "Mall", 
+        desc: "Un centro comercial de los años 80 abandonado en Brooklyn, Nueva York. Escaleras mecánicas eternas, tiendas vacías y salidas de emergencia que solo llevan a paredes.",
+        img: "recursos/mapas/mall.png" 
+    },
+    { 
+        name: "House", 
+        desc: "Una casa veraniega entre los valles de México, abandonada tras una tragedia familiar. Más habitaciones dentro que ventanas fuera, y retratos con rostros borrosos que miran desde las paredes.",
+        img: "recursos/mapas/house.png" 
+    },
+    { 
+        name: "Train", 
+        desc: "Una estación de trenes abandonada en Europa del Este, cerrada tras la caída de la URSS. Andenes vacíos y vagones oxidados, con habitaciones completas encapsuladas sin puertas.",
+        img: "recursos/mapas/train.png" 
+    },
+    { 
+        name: "Tuscan", 
+        desc: "Un pequeño pueblo costero en la región de Toscana, Italia. Calles empedradas y edificios que parecen habitados, pero no hay nadie, y no hay salidas al exterior.",
+        img: "recursos/mapas/tuscan.png" 
+    },
+    { 
+        name: "Ware", 
+        desc: "Un almacén de granos en las afueras de Argentina. Las calles están bloqueadas por barreras de obra que esconden paredes invisibles, y la ciudad está vacía de personas.",
+        img: "recursos/mapas/ware.png" 
+    },
+    { 
+        name: "Rooftops", 
+        desc: "Las terrazas y azoteas de un complejo de apartamentos en una ciudad europea. Se escucha tráfico constante, pero al asomarte por el borde, las calles están vacías.",
+        img: "recursos/mapas/rooftops.png" 
+    },
+    { 
+        name: "Apartments", 
+        desc: "Una plaza rodeada de apartamentos soviéticos. Las ventanas tienen luces de colores que nunca se apagan ni cambian, como una ciudad congelada en el tiempo.",
+        img: "recursos/mapas/apartments.png" 
+    },
+    { 
+        name: "Disco", 
+        desc: "Una discoteca popular en España durante los años 90, ahora cerrada. La música siempre suena, aunque no hay DJ, y las luces estroboscópicas parpadean sin nadie que las controle.",
+        img: "recursos/mapas/disco.png" 
+    }
+];
+
+            // ---- DATOS DE HABILIDADES DE SUPERVIVIENTE ----
+            const survivorAbilities = [
+    { 
+        name: "Golpe", 
+        desc: "Golpeas al asesino y lo aturdes brevemente.",
+        detail: "Impacto: El Killer queda Aturdido y es empujado violentamente hacia atrás. Cooldown: 30s.",
+        img: "recursos/personajes/survivor_golpe.png" 
+    },
+    { 
+        name: "Provocación", 
+        desc: "Te burlas del asesino y llamas su atención.",
+        detail: "Éxito: Si te mira, el asesino obtiene Lentitud y tú obtienes Invulnerabilidad total por 5s. Fracaso: Si fallas, quedarás en ridículo y el asesino sabrá exactamente dónde estás. Cooldown: 25s.",
+        img: "recursos/personajes/survivor_taunt.png" 
+    },
+    { 
+        name: "Curación", 
+        desc: "Agitas una poción mística que rocía a los aliados frente a ti.",
+        detail: "Restaura una cantidad media de vida instantáneamente a los aliados que alcances. Cooldown: 40s.",
+        img: "recursos/personajes/survivor_curar.png" 
+    },
+    { 
+        name: "Dash", 
+        desc: "Realizas un impulso horizontal rápido para esquivar ataques.",
+        detail: "Solo funciona en el plano horizontal. No intentes usarlo para saltar obstáculos altos. Cooldown: 45s.",
+        img: "recursos/personajes/survivor_dash.png" 
+    },
+    { 
+        name: "Adrenalina", 
+        desc: "El miedo te invade y tu corazón se dispara. Corres como si no hubiera un mañana.",
+        detail: "Velocidad masiva por unos segundos. Consecuencia: Tras el subidón, quedarás Exhausto y serás incapaz de moverte por un breve tiempo. Cooldown: 40s.",
+        img: "recursos/personajes/survivor_adrenalina.png" 
+    },
+    { 
+        name: "Bloqueo", 
+        desc: "Cruzas los brazos esperando el impacto. Una apuesta arriesgada.",
+        detail: "Parada Perfecta: Si bloqueas un ataque, recibes Velocidad y el Killer Lentitud. Error Crítico: Si no bloqueas nada, quedarás Vulnerable. Cooldown: 20s.",
+        img: "recursos/personajes/survivor_bloqueo.png" 
+    },
+    { 
+        name: "Revolver", 
+        desc: "Apuntas con mano temblorosa pero decidida. Un arma antigua para un mal antiguo.",
+        detail: "Disparo: Si aciertas, el Killer quedará Aturdido por un largo tiempo. Recarga: El arma queda vacía tras el disparo, requiere recarga manual lenta. Cooldown total: 35s (incluye recarga).",
+        img: "recursos/personajes/survivor_revolver.png" 
+    },
+    { 
+        name: "Cloak", 
+        desc: "Te desvaneces de la vista del asesino por un corto periodo de tiempo.",
+        detail: "Te vuelves casi indetectable. Interrupción: Si el asesino logra dañarte mientras estás invisible, el efecto se anula al instante. Cooldown: 60s.",
+        img: "recursos/personajes/survivor_cloak.png" 
+    },
+    { 
+        name: "Cámara", 
+        desc: "No solo documentas el horror, lo usas como arma. El destello desorienta a la bestia.",
+        detail: "Impacto: Si captas al Killer en el visor, recibe Lentitud II y su visión es cegada por un flash blanco. Desventaja: Preparar la toma te deja vulnerable; si fallas, quedas inmóvil 1.5s. Cooldown: 30s.",
+        img: "recursos/personajes/survivor_camera.png" 
+    },
+    { 
+        name: "Daga", 
+        desc: "No es un arma de guerra, es una herramienta de desesperación. Robas la esencia del verdugo.",
+        detail: "Cosecha: Al golpear al asesino, drenas su vitalidad para curar tus heridas y nublas su vista con un destello oscuro. Fragilidad: El impacto es leve, solo lo desorientas, no detienes sus pies. Cooldown: 30s.",
+        img: "recursos/personajes/survivor_daga.png" 
+    },
+    { 
+        name: "Malvavisco", 
+        desc: "Encontrar consuelo en un dulce puede parecer ridículo mientras te persiguen, pero el subidón de azúcar es real.",
+        detail: "Azúcar: Consumirlo restaura una cantidad considerable de salud de forma directa. Empalago: Es difícil correr con la boca llena, quedas totalmente vulnerable e inmóvil. Cooldown: 40s.",
+        img: "recursos/personajes/survivor_malvavisco.png" 
+    },
+    { 
+        name: "Campo de Fuerza", 
+        desc: "Liberas pulsos de presión que obligan a cualquier enemigo a retroceder ante tu presencia.",
+        detail: "Impacto de Rey: Tras un segundo de preparación, emite 3 ondas de choque que mandan a volar al asesino. Agotamiento: Al terminar, entras en estado de fatiga y quedas inmóvil por 2.5s. Cooldown: 45s.",
+        img: "recursos/personajes/survivor_campodefuerza.png" 
+    }
+];
+
+            // ---- FALLBACK DE TEXTO PARA HABILIDADES SIN IMAGEN ----
+            function abilityFallback(name) {
+                return (name || "?").trim().slice(0, 2).toUpperCase();
+            }
+
+            // ---- DOM REFS ----
+            const killerDetail = document.getElementById('killerDetail');
+            const killerBtns = document.querySelectorAll('.killer-btn');
+            const survivorGrid = document.getElementById('survivorAbilitiesGrid');
+            const popup = document.getElementById('survivorAbilityPopup');
+            const popupTitle = document.getElementById('popupTitle');
+            const popupDesc = document.getElementById('popupDesc');
+            const popupDetail = document.getElementById('popupDetail');
+            const mapGrid = document.getElementById('mapGrid');
+            const skinModalOverlay = document.getElementById('skinModalOverlay');
+            const skinModalName = document.getElementById('skinModalName');
+            const skinModalTier = document.getElementById('skinModalTier');
+            const skinModalDesc = document.getElementById('skinModalDesc');
+
+            // ---- FUNCIONES ----
+            function toggleLore(btn) {
+                const loreFull = btn.nextElementSibling;
+                if (loreFull && loreFull.classList.contains('lore-full')) {
+                    loreFull.classList.toggle('open');
+                    btn.textContent = loreFull.classList.contains('open') ? 'Ocultar historia completa' :
+                        'Leer historia completa';
+                }
+            }
+
+            function openSkinModal(killerId, idx) {
+    const data = killersData[killerId];
+    if (!data || !data.skins || !data.skins[idx]) return;
+    const skin = data.skins[idx];
+    skinModalName.textContent = skin.name;
+    skinModalTier.textContent = skin.tier;
+    skinModalTier.setAttribute('data-tier', skin.tier);
+    skinModalDesc.textContent = skin.desc;
+    // NUEVO: cargar la imagen en el modal
+    const img = document.getElementById('skinModalImg');
+    if (img) {
+        img.src = skin.img || '';
+        img.alt = skin.name;
+        img.onerror = function() { this.style.display = 'none'; };
+        img.style.display = 'block';
+    }
+    skinModalOverlay.classList.add('open');
+}
+
+            function closeSkinModal() {
+                skinModalOverlay.classList.remove('open');
+            }
+
+            function toggleAbilityPopup(id) {
+                const el = document.getElementById(id);
+                if (!el) return;
+                document.querySelectorAll('.ability-popup').forEach(p => {
+                    if (p.id !== id) p.classList.remove('open');
+                });
+                el.classList.toggle('open');
+            }
+
+            function renderKiller(killerId) {
+                const data = killersData[killerId];
+                if (!data) {
+                    killerDetail.innerHTML = `<p style="color:#7a7a7a;">Selecciona un asesino.</p>`;
+                    return;
+                }
+
+                let html = `
+                    <div class="killer-hero">
+                        <div class="hero-name">${data.name}</div>
+                    </div>
+                    <div class="name-title">${data.name} <span style="font-weight:300; color:#8a8a8a;">— ${data.title}</span></div>
+                    <div class="real-name">Nombre real: ${data.realName}</div>
+                    <div class="lore-short">${data.loreShort}</div>
+                    <button class="btn-lore" onclick="toggleLore(this)">Leer historia completa</button>
+                    <div class="lore-full">${data.loreFull}</div>
+                    <h4>Habilidades</h4>
+                    <div class="abilities-grid">
+                `;
+
+                data.abilities.forEach((abil, idx) => {
+                    const id = `killer-${killerId}-${idx}`;
+                    const icon = abilityFallback(abil.name);
+                    html += `
+                        <div class="ability-icon-btn" onclick="toggleAbilityPopup('${id}')">
+                            <span class="icon-placeholder" data-fallback="${icon}">
+                                <img src="${abil.img}" alt="${abil.name}" onerror="this.parentElement.textContent=this.parentElement.dataset.fallback;">
+                            </span>
+                            <span class="abil-name">${abil.name}</span>
+                        </div>
+                    `;
+                });
+
+                html += `</div>`;
+
+                data.abilities.forEach((abil, idx) => {
+                    const id = `killer-${killerId}-${idx}`;
+                    html += `
+                        <div id="${id}" class="ability-popup">
+                            <div class="popup-title">${abil.name}</div>
+                            <div class="popup-desc">${abil.desc}</div>
+                            <div class="popup-detail">${abil.detail}</div>
+                        </div>
+                    `;
+                });
+
+                html += `<h4>Skins</h4><div class="skins-grid">`;
+                data.skins.forEach((skin, sidx) => {
+                    html += `
+                        <button class="skin-btn" onclick="openSkinModal('${killerId}', ${sidx})">
+                            <span class="skin-btn-name">${skin.name}</span>
+                            <span class="skin-btn-tier" data-tier="${skin.tier}">${skin.tier}</span>
+                        </button>
+                    `;
+                });
+                html += `</div>`;
+
+                killerDetail.innerHTML = html;
+                killerDetail.classList.add('visible');
+                document.body.classList.remove('theme-survivors');
+                document.body.classList.add('theme-killers');
+            }
+
+            function renderSurvivorAbilities() {
+                let html = '';
+                survivorAbilities.forEach((abil, idx) => {
+                    const icon = abilityFallback(abil.name);
+                    html += `
+                        <div class="survivor-abil-btn" data-idx="${idx}">
+                            <span class="icon-placeholder" data-fallback="${icon}">
+                                <img src="${abil.img}" alt="${abil.name}" loading="lazy" onerror="this.parentElement.textContent=this.parentElement.dataset.fallback;">
+                            </span>
+                            <span class="abil-name">${abil.name}</span>
+                        </div>
+                    `;
+                });
+                survivorGrid.innerHTML = html;
+
+                document.querySelectorAll('.survivor-abil-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const idx = parseInt(this.dataset.idx);
+                        const abil = survivorAbilities[idx];
+                        if (!abil) return;
+                        popupTitle.textContent = abil.name;
+                        popupDesc.textContent = abil.desc;
+                        popupDetail.textContent = abil.detail;
+                        popup.classList.add('open');
+                        document.body.classList.remove('theme-killers');
+                        document.body.classList.add('theme-survivors');
+                    });
+                });
+            }
+
+            function renderMaps() {
+                let html = '';
+                mapData.forEach(map => {
+                    html += `
+                        <div class="map-card">
+                            <div class="map-img-placeholder">
+                                <img src="${map.img}" alt="${map.name}" loading="lazy">
+                            </div>
+                            <div class="map-name">${map.name}</div>
+                            <div class="map-desc">${map.desc}</div>
+                        </div>
+                    `;
+                });
+                mapGrid.innerHTML = html;
+            }
+
+            // ---- EVENTOS ----
+            killerBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    killerBtns.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    renderKiller(this.dataset.killer);
+                });
+            });
+
+            const tabBtns = document.querySelectorAll('.tab-btn');
+            const tabContents = {
+                personajes: document.getElementById('personajes'),
+                mapas: document.getElementById('mapas'),
+                jugabilidad: document.getElementById('jugabilidad')
+            };
+            tabBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    tabBtns.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    Object.values(tabContents).forEach(el => el.classList.remove('active'));
+                    const id = this.dataset.tab;
+                    if (tabContents[id]) tabContents[id].classList.add('active');
+
+                    if (id !== 'personajes') {
+                        document.body.classList.remove('theme-killers', 'theme-survivors');
+                    } else {
+                        const activeSub = document.querySelector('.sub-tab-btn.active');
+                        if (activeSub) {
+                            if (activeSub.dataset.subtab === 'asesinos') {
+                                document.body.classList.remove('theme-survivors');
+                                document.body.classList.add('theme-killers');
+                            } else {
+                                document.body.classList.remove('theme-killers');
+                                document.body.classList.add('theme-survivors');
+                            }
+                        }
+                    }
+                });
+            });
+
+            const subTabBtns = document.querySelectorAll('.sub-tab-btn');
+            const subContents = {
+                asesinos: document.getElementById('sub-asesinos'),
+                supervivientes: document.getElementById('sub-supervivientes')
+            };
+            subTabBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    subTabBtns.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    Object.values(subContents).forEach(el => el.classList.remove('active'));
+                    const id = this.dataset.subtab;
+                    if (subContents[id]) subContents[id].classList.add('active');
+
+                    if (id === 'asesinos') {
+                        document.body.classList.remove('theme-survivors');
+                        document.body.classList.add('theme-killers');
+                    } else {
+                        document.body.classList.remove('theme-killers');
+                        document.body.classList.add('theme-survivors');
+                    }
+                });
+            });
+
+            // ---- INICIO ----
+            renderSurvivorAbilities();
+            renderMaps();
+            const firstKiller = document.querySelector('.killer-btn.active') || document.querySelector('.killer-btn');
+            if (firstKiller) {
+                renderKiller(firstKiller.dataset.killer);
+            }
+            document.body.classList.add('theme-killers');
+
+            // Hacer funciones globales para los onclick
+            window.toggleLore = toggleLore;
+            window.toggleAbilityPopup = toggleAbilityPopup;
+            window.openSkinModal = openSkinModal;
+            window.closeSkinModal = closeSkinModal;
+        })();
+    </script>
+</body>
+</html>
